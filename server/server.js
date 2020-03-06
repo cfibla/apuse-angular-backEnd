@@ -1,42 +1,28 @@
 require('./config/config');
 
-const express = require('express')
-const app = express()
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
 
-
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
  
 // parse application/json
-app.use(bodyParser.json())
- 
-app.get('/usuario', function (req, res) {
-  res.json('GET usuario')
-})
+app.use(bodyParser.json());
 
-app.post('/usuario', function (req, res) {
+app.use(require('./controllers/usuari'));
 
-	let body = req.body;
-
-	res.json({
-		persona: body
-	})
-})
-
-app.put('/usuario/:id', function (req, res) {
-
-	let id = req.params.id;
-
-	res.json({
-	  	id
-	})
-})
-
-app.delete('/usuario', function (req, res) {
-  res.json('DELETE usuario')
-})
+mongoose
+	.set("useCreateIndex", true)
+	.set('useNewUrlParser', true)
+	.set('useFindAndModify', false)
+	.set('useUnifiedTopology', true)
+	.connect(process.env.URLDB, (err, res) => {
+		if(err) throw err;
+		console.log("S'ha establert la connexió amb la base de dades");
+	});
  
 app.listen(process.env.PORT, () => {
 	console.log('Escuchando puerto: ', process.env.PORT);
