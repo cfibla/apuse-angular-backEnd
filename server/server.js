@@ -12,7 +12,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.use(require('./controllers/usuari'));
+// Routes
+app.use(require('./routes/index'));
 
 mongoose
 	.set("useCreateIndex", true)

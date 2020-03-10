@@ -6,16 +6,18 @@ const _ = require('underscore');
 const Usuari = require('../models/usuari');
 const Centre = require('../models/centre');
 
+const {auth, adminRole, superRole} = require('../middlewares/autenticacio')
+
 const app = express();
 //const models = require('../models/index');
 
 //GET
-app.get('/usuaris', function (req, res) {
+app.get('/usuaris', [auth, superRole], function (req, res) {
 
 	Usuari.find()
 		.exec((err, usuaris) => {
 			if (err) {
-				return res.status(400).json({
+				return res.status(500).json({
 					ok: false,
 					err: err.message
 				})
@@ -82,18 +84,18 @@ app.post('/usuari', function (req, res) {
 				usuari.password = bcrypt.hashSync(user.password, 10),
 				usuari.nom = user.nom,
 				usuari.cognom = user.cognom,
-				//usuari.role = user.role,
 				usuari.mestre = user.mestre,
 				usuari.curs = user.curs,
 				usuari.centre = centre,
 				usuari.estat = true
+				//usuari.role = user.role
 				//lastLogin
 				//horari
 
 				usuari.save ((err, usuariDB) => {
 
 					if (err) {
-						return res.status(400).json({
+						return res.status(500).json({
 							ok: false,
 							err: err.message
 						})
@@ -116,17 +118,25 @@ app.post('/usuari', function (req, res) {
 });
 
 // PUT
-app.put('/usuari/:id', function (req, res) {
+app.put('/usuari/:id', auth, function (req, res) {
 
 	let id = req.params.id;
 	//NOMÉS AGAFEM ELS CAMPS NECESSARIS DEL BODY
 	let body = _.pick(req.body, ['nom', 'cognom', 'img', 'mestre', 'curs', 'centre']);
 
 	Usuari.findByIdAndUpdate(id, body, {new: true, runValidators: true}, function (err, usuari){
+
 		if (err) {
-			return res.status(400).json({
+			return res.status(500).json({
 				ok: false,
 				err: err.message
+			})
+		}
+
+		if (!usuari) {
+			return res.status(400).json({
+				ok: false,
+				err: {message: 'Aquest usuari no existeix'}
 			})
 		}
 
@@ -137,14 +147,16 @@ app.put('/usuari/:id', function (req, res) {
 	});
 });
 
-app.delete('/usuari/:id', function (req, res) {
+//DELETE
+app.delete('/usuari/:id', auth, function (req, res) {
 
   let id = req.params.id;
   let estat = {estat: false}
 
 	Usuari.findByIdAndUpdate(id, estat, {new: true}, function (err, usuari){
+
 		if (err) {
-			return res.status(400).json({
+			return res.status(500).json({
 				ok: false,
 				err: err.message
 			})

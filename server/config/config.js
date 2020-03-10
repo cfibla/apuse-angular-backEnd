@@ -1,12 +1,24 @@
 // ========
-//	PUERTO
+//	PORT
 // ========
 process.env.PORT = process.env.PORT || 3000;
 
 // =========
-//	ENTORNO
+//	ENTORN
 // =========
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
+
+// =========
+//	SEED
+// =========
+process.env.SEED = process.env.SEED || 'seed-appescola';
+
+// ================
+//	CADUCITAT TOKEN
+// ================
+process.env.CADUCITAT_TOKEN = '30d';
+
+
 
 // ============
 //	BASE DADES

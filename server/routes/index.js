@@ -1,4 +1,12 @@
 const express = require('express');
+const app = express();
+
+app.use(require('../controllers/usuari'));
+app.use(require('../controllers/login'));
+
+
+module.exports = app;
+/*
 const router = express.Router();
 
 const adminController = require('../controllers/ADMIN_controller');
@@ -114,3 +122,4 @@ router.get('/altresCoord/:i/:id',		sessionController.loginRequired, altresCoordP
 
 
 module.exports = router;
+*/
