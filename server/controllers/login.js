@@ -36,7 +36,7 @@ app.post('/login', (req, res) => {
 
 		let token = jwt.sign({
 		  usuari: usuari
-		}, 'seed-appescola', { expiresIn: '30d' });
+		}, process.env.SEED, { expiresIn: '30d' });
 
 		res.json({
 			ok:true,

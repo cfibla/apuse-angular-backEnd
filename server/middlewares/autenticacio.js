@@ -17,7 +17,7 @@ let auth = (req, res, next) => {
 				ok: false,
 				err,
 				seed,
-				token: token,
+				token,
 				missatge: "AUTH" 
 			})
 		}

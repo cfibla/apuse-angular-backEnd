@@ -11,7 +11,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 // =========
 //	SEED
 // =========
-process.env.SEED = process.env.SEED || 'seed-appescola';
+process.env.SEED = process.env.SEED.toString('base64') || 'seed-appescola';
 
 // ================
 //	CADUCITAT TOKEN
