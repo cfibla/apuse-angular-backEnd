@@ -5,20 +5,15 @@ const jwt = require('jsonwebtoken');
 // ========================
 
 let auth = (req, res, next) => {
-	
 	let token = req.get('token');
-
-	let seed = process.env.SEED;
-
 
 	jwt.verify(token, process.env.SEED, (err, decoded) => {
 		if (err) {
 			return res.status(401).json({
 				ok: false,
-				err,
-				seed,
-				token,
-				missatge: "AUTH" 
+				err: {
+					message: "L'autenticació d'usuari no és valida"
+				}
 			})
 		}
 
