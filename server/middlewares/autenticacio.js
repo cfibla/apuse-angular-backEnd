@@ -16,7 +16,9 @@ let auth = (req, res, next) => {
 				ok: false,
 				err: {
 					message: "L'autenticació d'usuari no és valida"
-				}
+				},
+				token: token,
+				missatge: "AUTH" 
 			})
 		}
 
