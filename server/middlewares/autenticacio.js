@@ -5,7 +5,10 @@ const jwt = require('jsonwebtoken');
 // ========================
 
 let auth = (req, res, next) => {
+	console.log ('lalala: ');
 	let token = req.get('token');
+	console.log ('TokEN: ', token);
+
 
 	jwt.verify(token, process.env.SEED, (err, decoded) => {
 		if (err) {
