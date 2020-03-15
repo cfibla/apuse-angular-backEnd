@@ -3,6 +3,7 @@ const app = express();
 
 app.use(require('../controllers/usuari'));
 app.use(require('../controllers/login'));
+app.use(require('../controllers/alumne'));
 
 
 module.exports = app;

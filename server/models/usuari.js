@@ -1,7 +1,7 @@
 const mongoose = require ('mongoose');
 const uniqueValidator = require ('mongoose-unique-validator');
 
-const schemaCentres = require('./centre');
+//const schemaCentres = require('./centre');
 //const Centre = mongoose.model('Centre',schemaCentres, 'Centres');
 
 //const schemaHoraris = require('./schema_horari');

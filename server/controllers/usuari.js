@@ -49,8 +49,13 @@ app.post('/usuari', function (req, res) {
 			res.json("Falten dades obligatòries");
 	}
 
+	//cal comprovar el mail corporatiu
+
+
 	//Comprova el mail de l'escola i, si no existeix, en crea una de nova
 	let codiCentre = Centre.findOne({email:user.escolamail}, (err, escola) => {
+
+		//cal comprovar que el codi de l'escola tampoc estigui duplicat
 
 		if (err) return console.log ('Error buscant centre en la DB:', err.message);
 
