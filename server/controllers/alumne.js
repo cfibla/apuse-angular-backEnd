@@ -8,11 +8,12 @@ const Alumne = require ('../models/alumne');
 const Usuari = require('../models/usuari');
 const Centre = require('../models/centre');
 
-// GET tots els alumnes
+// GET alumnes USER_ROLE
 app.get('/alumnes', auth, (req, res) => {
-	Alumne.find({centre: req.usuari.centre, curs: req.usuari.curs},
-		null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-		.populate('centre usuari')
+
+	Alumne
+		.find({centre: req.usuari.centre, curs: req.usuari.curs},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
+		.populate('centre', 'codi email')
 		.exec(function(err, alumnes){
 			if (err) {
 				return res.status(500).json({
@@ -21,29 +22,133 @@ app.get('/alumnes', auth, (req, res) => {
 				})
 			}
 
-		//Comptar alumnes
-		Alumne.countDocuments({}, (err, quants) => {
-			res.json({
-				ok: true,
-				alumnes,
-				quants
+			//Comptar alumnes
+			Alumne.countDocuments({centre: req.usuari.centre, curs: req.usuari.curs}, (err, quants) => {
+				res.json({
+					ok: true,
+					alumnes,
+					quants
+				});
 			});
 		});
-	});
 });
 
-// GET alumnes admin
+// GET alumnes ADMIN_ROLE
 app.get('/alumnes-admin', [auth, adminRole], (req, res) => {
+
+
+	Alumne
+		.find({centre: req.usuari.centre},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
+		.populate('centre', 'codi email')
+		.exec(function(err, alumnes){
+			if (err) {
+				return res.status(500).json({
+					ok: false,
+					err: err.message
+				})
+			}
+
+			//Comptar alumnes
+			Alumne.countDocuments({centre: req.usuari.centre}, (err, quants) => {
+				res.json({
+					ok: true,
+					alumnes,
+					quants
+				});
+			});
+		});
 	
 });
 
-// GET alumnes super
+// GET alumnes SUPER_ROLE
 app.get('/alumnes-super', [auth, superRole], (req, res) => {
-	
+
+	Alumne
+		.find({},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
+		.populate('centre', 'codi email')
+		.exec(function(err, alumnes){
+			if (err) {
+				return res.status(500).json({
+					ok: false,
+					err: err.message
+				})
+			}
+
+			//Comptar alumnes
+			Alumne.countDocuments({centre: req.usuari.centre, curs: req.usuari.curs}, (err, quants) => {
+				res.json({
+					ok: true,
+					alumnes,
+					quants
+				});
+			});
+		});
+
 });
 
-// GET un alumne
+// GET un alumne per ID
 app.get('/alumne/:id', auth, (req, res) => {
+
+	let id = req.params.id;
+
+	Alumne
+		.findById(id)
+		.populate('centre', 'codi email')
+		.exec(function(err, alumne){
+
+			if (err) {
+				return res.status(400).json({
+					ok: false,
+					err: {
+						message:"Aquest alumne no existeix a la base de dades"
+					}
+				})
+			}
+
+			res.json({
+					ok: true,
+					alumne
+				});
+
+		});
+
+});
+
+// GET un alumne pel COGNOM (MILLORAR)
+app.get('/alumne/recerca/:paraula', auth, (req, res) => {
+
+	let paraula = req.params.paraula;
+	let regex = new RegExp(paraula, 'i');
+
+	Alumne
+		.find({cognomAlumne1: regex})
+		.populate('centre', 'codi email')
+		.exec(function(err, alumnes){
+
+			if (err) {
+				return res.status(500).json({
+					ok: false,
+					err: {
+						message:"Aquest alumne no existeix a la base de dades"
+					}
+				})
+			}
+
+			if (!alumnes) {
+				return res.status(400).json({
+					ok: false,
+					err: {
+						message:"Aquest alumne no hi és a la base de dades"
+					}
+				})
+			}
+
+			res.json({
+				ok: true,
+				alumnes
+			});
+
+		});
 
 });
 
@@ -174,7 +279,8 @@ app.delete('/alumne/:id', auth, (req, res) => {
 
 		res.json({
 		  	ok: true,
-		  	alumne
+		  	alumne,
+		  	message: "Dades eliminades"
 		});
 	});
 });
