@@ -1,24 +1,27 @@
 {
-  "name": "apuse-angular",
-  "version": "2.0.0",
-  "description": "Aplicació per a mestres",
-  "main": "index.js",
-  "engines": {
-    "node": "12.9.1"
-  },
-  "scripts": {
-    "start": "node server/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Carles Fibla",
-  "license": "ISC",
-  "dependencies": {
-    "bcrypt": "^4.0.1",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.3",
-    "mongoose-unique-validator": "^2.0.3",
-    "underscore": "^1.9.2"
-  }
+    "name": "apuse-angular",
+    "version": "2.0.0",
+    "description": "Aplicació per a mestres",
+    "main": "server/server.js",
+    "engines": {
+        "node": "12.9.1"
+    },
+    "scripts": {
+        "start": "node server/server.js",
+        "start:dev": "nodemon server/server"
+    },
+    "author": "Carles Fibla",
+    "license": "ISC",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.19.0",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "express-validator": "^6.9.2",
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.9.3",
+        "mongoose-unique-validator": "^2.0.3",
+        "underscore": "^1.9.2"
+    }
 }

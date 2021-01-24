@@ -6,45 +6,44 @@ const jwt = require('jsonwebtoken');
 const Usuari = require('../models/usuari');
 const Centre = require('../models/centre');
 
-const app = express();
+const loginNormal = async(req, res) => {
 
-app.post('/login', (req, res) => {
+    console.log('hola login');
+    let body = req.body;
 
-	let body = req.body;
+    Usuari.findOne({ email: body.email }, (err, usuari) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err: { message: 'No es troba el servidor' }
+            });
+        }
 
-	Usuari.findOne({email:body.email}, (err, usuari) => {
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+        if (!usuari) {
+            return res.status(400).json({
+                ok: false,
+                err: { message: 'Usuari o contrasenya incorrectes' }
+            });
+        }
 
-		if (!usuari) {
-			return res.status(400).json({
-				ok: false,
-				err: {message: 'Usuari o contrasenya incorrectes'}
-			})
-		}
+        if (!bcrypt.compareSync(body.password, usuari.password)) {
+            return res.status(400).json({
+                ok: false,
+                err: { message: 'Usuari o contrasenya incorrectes' }
+            });
+        }
 
-		if (!bcrypt.compareSync(body.password, usuari.password)) {
-			return res.status(400).json({
-				ok: false,
-				err: {message: 'Usuari o contrasenya incorrectes'}
-			})
-		}
+        let token = jwt.sign({
+            usuari: usuari
+        }, process.env.SEED, { expiresIn: '30d' });
 
-		let token = jwt.sign({
-		  usuari: usuari
-		}, process.env.SEED, { expiresIn: '30d' });
-
-		res.json({
-			ok:true,
-			token: token,
-			usuari
-		});
-	});
-});
+        res.json({
+            ok: true,
+            token: token,
+            usuari
+        });
+    });
+};
 
 /*
 exports.login = function (req, res){
@@ -99,4 +98,6 @@ exports.login = function (req, res){
 };
 */
 
-module.exports = app;
+module.exports = {
+    loginNormal
+};

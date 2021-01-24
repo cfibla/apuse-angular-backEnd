@@ -1,188 +1,251 @@
 const express = require('express');
+const { response } = require('express');
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const _ = require('underscore');
 
+const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
+
+//const models = require('../models/index');
 const Usuari = require('../models/usuari');
 const Centre = require('../models/centre');
+const { generarJWT } = require('../helpers/jwt');
 
-const {auth, adminRole, superRole} = require('../middlewares/autenticacio')
+// GET
+const getUsuaris = async(req, res) => {
 
-const app = express();
-//const models = require('../models/index');
+    const usuaris = await Usuari.find({}, 'nom cognom centre email role google estat');
+    const quants = await Usuari.countDocuments();
 
-//GET
-app.get('/usuaris', [auth, superRole], function (req, res) {
+    res.json({
+        ok: true,
+        msg: 'Funció getUsuaris',
+        usuaris,
+        quants
+    });
 
-	Usuari.find()
-		.exec((err, usuaris) => {
-			if (err) {
-				return res.status(500).json({
-					ok: false,
-					err: err.message
-				})
-			}
-
-			//Comptar usuaris
-			Usuari.countDocuments({}, (err, quants) => {
-				res.json({
-					ok: true,
-					usuaris,
-					quants
-				});
-			});
-		});
-});
+};
 
 // POST
-app.post('/usuari', function (req, res) {
+const crearUsuari = async(req, res = response) => {
 
-	let user = req.body;
+    const { email, password } = req.body;
 
-	if (!user.email ||
-		!user.nom ||
-		!user.cognom ||
-		!user.password ||
-		!user.mestre ||
-		!user.escolacodi ||
-		!user.escolamail) {
-			res.json("Falten dades obligatòries");
-	}
+    try {
+        // Falta comprovar el mail corporatiu
+        // Falta comprovar que sinó és EE, el curs és obligatori
 
-	//cal comprovar el mail corporatiu
+        const emailRepetit = await Usuari.findOne({ email });
 
+        if (emailRepetit) {
+            return res.status(400).json({
+                ok: false,
+                msg: "Ja existeix aquest correu electrònic a la base de dades"
+            });
+        }
 
-	//Comprova el mail de l'escola i, si no existeix, en crea una de nova
-	let codiCentre = Centre.findOne({email:user.escolamail}, (err, escola) => {
+        const usuari = new Usuari(req.body);
 
-		//cal comprovar que el codi de l'escola tampoc estigui duplicat
+        // bcrypt
+        const salt = bcrypt.genSaltSync();
+        usuari.password = bcrypt.hashSync(password, salt);
 
-		if (err) return console.log ('Error buscant centre en la DB:', err.message);
+        // Desa l'usuari
+        await usuari.save();
 
-		let usuari = new Usuari();
-	
-		function cercaEscola() {
-		    return new Promise(function(resolve, reject) {
+        const token = await generarJWT(usuari.uid);
 
-			    if (!escola) {
-					let centre = new Centre({
-						codi: user.escolacodi,
-						email: user.escolamail
-					});
-					centre.save ((error, centreDB) => {
-						if (error) {
-							reject (console.log ('Error en gravar centre en la DB:', error.message));
-						} else {
-							resolve (centreDB._id);
-						}
-					});
-				} else {
-					resolve (escola._id);
-				}
-		    });
-		}
+        res.json({
+            ok: true,
+            msg: "S'ha creat l'usuari",
+            usuari,
+            token
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "No s'ha pogut contactar amb el servidor"
+        });
 
-		cercaEscola()
-			.then((centre) => {
+    }
 
-				usuari.email = user.email,
-				usuari.password = bcrypt.hashSync(user.password, 10),
-				usuari.nom = user.nom,
-				usuari.cognom = user.cognom,
-				usuari.mestre = user.mestre,
-				usuari.curs = user.curs,
-				usuari.centre = centre,
-				usuari.estat = true
-				//usuari.role = user.role
-				//lastLogin
-				//horari
+    /*
+    //Comprova el mail de l'escola i, si no existeix, en crea una de nova
+    let codiCentre = Centre.findOne({ email: user.escolamail }, (err, escola) => {
 
-				usuari.save ((err, usuariDB) => {
+        //cal comprovar que el codi de l'escola tampoc estigui duplicat
 
-					if (err) {
-						return res.status(500).json({
-							ok: false,
-							err: err.message
-						})
-					}
+        if (err) return console.log('Error buscant centre en la DB:', err.message);
 
-					res.json({
-						ok: true,
-						usuari: usuariDB
-					})
+        let usuari = new Usuari();
 
-				})
-			})
-			.catch(() => {
-			    console.log("Hi ha hagut un error en la gravació de l'usuari");
-			});
-	});
-//ENVIAR USER_ROLE
-//COMPROVAR QUE SINÓ ÉS EE, EL CURS ÉS OBLIGATORI
-// FALTA LOGIN
-});
+        function cercaEscola() {
+            return new Promise(function(resolve, reject) {
+
+                if (!escola) {
+                    let centre = new Centre({
+                        codi: user.escolacodi,
+                        email: user.escolamail
+                    });
+                    centre.save((error, centreDB) => {
+                        if (error) {
+                            reject(console.log('Error en gravar centre en la DB:', error.message));
+                        } else {
+                            resolve(centreDB._id);
+                        }
+                    });
+                } else {
+                    resolve(escola._id);
+                }
+            });
+        }
+
+        cercaEscola()
+            .then((centre) => {
+
+                usuari.email = user.email,
+                    usuari.password = bcrypt.hashSync(user.password, 10),
+                    usuari.nom = user.nom,
+                    usuari.cognom = user.cognom,
+                    usuari.mestre = user.mestre,
+                    usuari.curs = user.curs,
+                    usuari.centre = centre,
+                    usuari.estat = true;
+                //usuari.role = user.role
+                //lastLogin
+                //horari
+
+                usuari.save((err, usuariDB) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            err: err.message
+                        });
+                    }
+
+                    res.json({
+                        ok: true,
+                        usuari: usuariDB
+                    });
+
+                });
+            })
+            .catch(() => {
+                console.log("Hi ha hagut un error en la gravació de l'usuari");
+            });
+    });
+
+    */
+
+};
 
 // PUT
-app.put('/usuari/:id', auth, function (req, res) {
+const editarUsuari = async(req, res = response) => {
 
-	let id = req.params.id;
-	//NOMÉS AGAFEM ELS CAMPS NECESSARIS DEL BODY
-	let body = _.pick(req.body, ['nom', 'cognom', 'img', 'mestre', 'curs', 'centre']);
+    const uid = req.params.id;
 
-	Usuari.findByIdAndUpdate(id, body, {new: true, runValidators: true}, function (err, usuari){
+    try {
+        if (!uid.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'El format de la ID no és valid'
+            });
+        }
 
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+        const usuariDB = await Usuari.findById(uid);
 
-		if (!usuari) {
-			return res.status(400).json({
-				ok: false,
-				err: {message: 'Aquest usuari no existeix'}
-			})
-		}
+        if (!usuariDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Usuari inexistent',
+            });
+        }
 
-		res.json({
-		  	ok: true,
-		  	usuari
-		});
-	});
-});
+        // TODO: Validar token i comprovar usuari role
+        const token = await generarJWT(usuariDB.id);
 
-//DELETE
-app.delete('/usuari/:id', auth, function (req, res) {
+        const { pasword, google, email, ...actualitzacions } = req.body;
 
-  let id = req.params.id;
-  let estat = {estat: false}
+        if (usuariDB.email !== email) {
+            const existeixEmail = await Usuari.findOne({ email });
+            if (existeixEmail) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Aquest correu ja existeix a la base de dades'
+                });
+            }
+        }
 
-	Usuari.findByIdAndUpdate(id, estat, {new: true}, function (err, usuari){
+        actualitzacions.email = email;
 
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+        const usuariActualitzat = await Usuari.findByIdAndUpdate(uid, actualitzacions, { new: true });
 
-		if (!usuari) {
-			return res.status(400).json({
-				ok: false,
-				err: {message: 'Aquest usuari no existeix'}
-			})
-		}
+        res.json({
+            ok: true,
+            usuari: usuariActualitzat
+        });
 
-		res.json({
-		  	ok: true,
-		  	usuari
-		});
-	});
+    } catch (error) {
+        // console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "No s'ha pogut actualitzar l'usuari"
+        });
+    }
+    /*
+        let id = req.params.id;
+        //NOMÉS AGAFEM ELS CAMPS NECESSARIS DEL BODY
+        let body = _.pick(req.body, ['nom', 'cognom', 'img', 'mestre', 'curs', 'centre']);
 
-});
+        Usuari.findByIdAndUpdate(id, body, { new: true, runValidators: true }, function(err, usuari) {
 
-module.exports = app;
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: err.message
+                });
+            }
+
+            if (!usuari) {
+                return res.status(400).json({
+                    ok: false,
+                    err: { message: 'Aquest usuari no existeix' }
+                });
+            }
+
+            res.json({
+                ok: true,
+                usuari
+            });
+        });
+        */
+};
+
+// DELETE
+eliminarUsuari = async(req, res) => {
+
+    let id = req.params.id;
+    let estat = { estat: false };
+
+    try {
+
+        const usuariEliminat = await Usuari.findByIdAndUpdate(id, estat, { new: true });
+
+        res.json({
+            ok: true,
+            usuariEliminat
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            ok: false,
+            err: { message: 'Aquest usuari no existeix' }
+        });
+    }
+
+};
 
 
 /*
@@ -279,5 +342,9 @@ exports.delUser = function (req, res) {
 };
 */
 
-module.exports = app;
-
+module.exports = {
+    getUsuaris,
+    crearUsuari,
+    editarUsuari,
+    eliminarUsuari
+};

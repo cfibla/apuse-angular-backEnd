@@ -1,207 +1,207 @@
-const express = require ('express');
-
-const {auth, adminRole, superRole} = require ('../middlewares/autenticacio');
-
+const express = require('express');
 const app = express();
 
-const Alumne = require ('../models/alumne');
+const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
+
+
+const Alumne = require('../models/alumne');
 const Usuari = require('../models/usuari');
 const Centre = require('../models/centre');
 
 // GET alumnes USER_ROLE
 app.get('/alumnes', auth, (req, res) => {
 
-	Alumne
-		.find({centre: req.usuari.centre, curs: req.usuari.curs},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-		.populate('centre', 'codi email')
-		.exec(function(err, alumnes){
-			if (err) {
-				return res.status(500).json({
-					ok: false,
-					err: err.message
-				})
-			}
+    Alumne
+        .find({ centre: req.usuari.centre, curs: req.usuari.curs }, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
+        .populate('centre', 'codi email')
+        .exec(function(err, alumnes) {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: err.message
+                });
+            }
 
-			//Comptar alumnes
-			Alumne.countDocuments({centre: req.usuari.centre, curs: req.usuari.curs}, (err, quants) => {
-				res.json({
-					ok: true,
-					alumnes,
-					quants
-				});
-			});
-		});
+            //Comptar alumnes
+            Alumne.countDocuments({ centre: req.usuari.centre, curs: req.usuari.curs }, (err, quants) => {
+                res.json({
+                    ok: true,
+                    alumnes,
+                    quants
+                });
+            });
+        });
 });
 
 // GET alumnes ADMIN_ROLE
 app.get('/alumnes-admin', [auth, adminRole], (req, res) => {
 
 
-	Alumne
-		.find({centre: req.usuari.centre},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-		.populate('centre', 'codi email')
-		.exec(function(err, alumnes){
-			if (err) {
-				return res.status(500).json({
-					ok: false,
-					err: err.message
-				})
-			}
+    Alumne
+        .find({ centre: req.usuari.centre }, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
+        .populate('centre', 'codi email')
+        .exec(function(err, alumnes) {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: err.message
+                });
+            }
 
-			//Comptar alumnes
-			Alumne.countDocuments({centre: req.usuari.centre}, (err, quants) => {
-				res.json({
-					ok: true,
-					alumnes,
-					quants
-				});
-			});
-		});
-	
+            //Comptar alumnes
+            Alumne.countDocuments({ centre: req.usuari.centre }, (err, quants) => {
+                res.json({
+                    ok: true,
+                    alumnes,
+                    quants
+                });
+            });
+        });
+
 });
 
 // GET alumnes SUPER_ROLE
 app.get('/alumnes-super', [auth, superRole], (req, res) => {
 
-	Alumne
-		.find({},null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-		.populate('centre', 'codi email')
-		.exec(function(err, alumnes){
-			if (err) {
-				return res.status(500).json({
-					ok: false,
-					err: err.message
-				})
-			}
+    Alumne
+        .find({}, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
+        .populate('centre', 'codi email')
+        .exec(function(err, alumnes) {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: err.message
+                });
+            }
 
-			//Comptar alumnes
-			Alumne.countDocuments({centre: req.usuari.centre, curs: req.usuari.curs}, (err, quants) => {
-				res.json({
-					ok: true,
-					alumnes,
-					quants
-				});
-			});
-		});
+            //Comptar alumnes
+            Alumne.countDocuments({ centre: req.usuari.centre, curs: req.usuari.curs }, (err, quants) => {
+                res.json({
+                    ok: true,
+                    alumnes,
+                    quants
+                });
+            });
+        });
 
 });
 
 // GET un alumne per ID
 app.get('/alumne/:id', auth, (req, res) => {
 
-	let id = req.params.id;
+    let id = req.params.id;
 
-	Alumne
-		.findById(id)
-		.populate('centre', 'codi email')
-		.exec(function(err, alumne){
+    Alumne
+        .findById(id)
+        .populate('centre', 'codi email')
+        .exec(function(err, alumne) {
 
-			if (err) {
-				return res.status(400).json({
-					ok: false,
-					err: {
-						message:"Aquest alumne no existeix a la base de dades"
-					}
-				})
-			}
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: "Aquest alumne no existeix a la base de dades"
+                    }
+                });
+            }
 
-			res.json({
-					ok: true,
-					alumne
-				});
+            res.json({
+                ok: true,
+                alumne
+            });
 
-		});
+        });
 
 });
 
 // GET un alumne pel COGNOM (MILLORAR)
 app.get('/alumne/recerca/:paraula', auth, (req, res) => {
 
-	let paraula = req.params.paraula;
-	let regex = new RegExp(paraula, 'i');
+    let paraula = req.params.paraula;
+    let regex = new RegExp(paraula, 'i');
 
-	Alumne
-		.find({cognomAlumne1: regex})
-		.populate('centre', 'codi email')
-		.exec(function(err, alumnes){
+    Alumne
+        .find({ cognomAlumne1: regex })
+        .populate('centre', 'codi email')
+        .exec(function(err, alumnes) {
 
-			if (err) {
-				return res.status(500).json({
-					ok: false,
-					err: {
-						message:"Aquest alumne no existeix a la base de dades"
-					}
-				})
-			}
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: {
+                        message: "Aquest alumne no existeix a la base de dades"
+                    }
+                });
+            }
 
-			if (!alumnes) {
-				return res.status(400).json({
-					ok: false,
-					err: {
-						message:"Aquest alumne no hi és a la base de dades"
-					}
-				})
-			}
+            if (!alumnes) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: "Aquest alumne no hi és a la base de dades"
+                    }
+                });
+            }
 
-			res.json({
-				ok: true,
-				alumnes
-			});
+            res.json({
+                ok: true,
+                alumnes
+            });
 
-		});
+        });
 
 });
 
 // POST alumne
 app.post('/alumne', auth, (req, res) => {
 
-	const body = req.body;
+    const body = req.body;
 
-	if (!body.nom||!body.cognom1||!body.curs){
-		res.json('Falten camps obligatoris');
-	} 
+    if (!body.nom || !body.cognom1 || !body.curs) {
+        res.json('Falten camps obligatoris');
+    }
 
-	//MILLORAR ELS CHECKS
-	const repetidor = body['radios.0'];
-	const aill = body['checks.2'];
-	const servSoc = body['checks.29'];
+    //MILLORAR ELS CHECKS
+    const repetidor = body['radios.0'];
+    const aill = body['checks.2'];
+    const servSoc = body['checks.29'];
 
-	let alumne = new Alumne({
-		nomAlumne: body.nom,
-		cognomAlumne1: body.cognom1,
-		cognomAlumne2: body.cognom2,
-		dataNaixement: body.naixement,
-		seguretatSoc: body.sSocial,
-		curs: body.curs,
-		eeUsee: body.eeUsee,
-		tutor: req.usuari._id,
-		centre:req.usuari.centre
-	});
+    let alumne = new Alumne({
+        nomAlumne: body.nom,
+        cognomAlumne1: body.cognom1,
+        cognomAlumne2: body.cognom2,
+        dataNaixement: body.naixement,
+        seguretatSoc: body.sSocial,
+        curs: body.curs,
+        eeUsee: body.eeUsee,
+        tutor: req.usuari._id,
+        centre: req.usuari.centre
+    });
 
-	alumne.save(function(err, alumneDB){
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+    alumne.save(function(err, alumneDB) {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err: err.message
+            });
+        }
 
-		if (!alumneDB) {
-			return res.status(400).json({
-				ok: false,
-				err: {
-					message: "L'alumne no s'ha gravat"
-				}
-			})
-		}
+        if (!alumneDB) {
+            return res.status(400).json({
+                ok: false,
+                err: {
+                    message: "L'alumne no s'ha gravat"
+                }
+            });
+        }
 
-		res.json({
-			ok: true,
-			alumne: alumneDB
-		})
-	});
+        res.json({
+            ok: true,
+            alumne: alumneDB
+        });
+    });
 
-		/*
+    /*
 //TODAY
 	let today = new Date();
 	let dd = today.getDate();
@@ -220,69 +220,69 @@ app.post('/alumne', auth, (req, res) => {
 		body.naixement = new Date();
 	};
 */
-	
+
 });
 
 // PUT alumne
 app.put('/alumne/:id', auth, (req, res) => {
 
-	let id = req.params.id;
-	let body = req.body;
+    let id = req.params.id;
+    let body = req.body;
 
-	Alumne.findByIdAndUpdate(id, body, {new: true, runValidators: true}, (err, alumneDB) => {
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+    Alumne.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, alumneDB) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err: err.message
+            });
+        }
 
-		if (!alumneDB) {
-			return res.status(400).json({
-				ok: false,
-				err: {
-					message: 'Aquest alumne no existeix'
-				}
-			})
-		}
+        if (!alumneDB) {
+            return res.status(400).json({
+                ok: false,
+                err: {
+                    message: 'Aquest alumne no existeix'
+                }
+            });
+        }
 
-		res.json({
-			ok: true,
-			alumne: alumneDB
-		})
-	})
+        res.json({
+            ok: true,
+            alumne: alumneDB
+        });
+    });
 });
 
 // DELETE alumne
 app.delete('/alumne/:id', auth, (req, res) => {
 
-	let id = req.params.id;
-	let estat = {estat: false}
+    let id = req.params.id;
+    let estat = { estat: false };
 
-	Alumne.findByIdAndUpdate(id, estat, {new: true}, function (err, alumne){
+    Alumne.findByIdAndUpdate(id, estat, { new: true }, function(err, alumne) {
 
-		if (err) {
-			return res.status(500).json({
-				ok: false,
-				err: err.message
-			})
-		}
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err: err.message
+            });
+        }
 
-		if (!alumne) {
-			return res.status(400).json({
-				ok: false,
-				err: {
-					message: 'Aquest alumne no existeix'
-				}
-			})
-		}
+        if (!alumne) {
+            return res.status(400).json({
+                ok: false,
+                err: {
+                    message: 'Aquest alumne no existeix'
+                }
+            });
+        }
 
-		res.json({
-		  	ok: true,
-		  	alumne,
-		  	message: "Dades eliminades"
-		});
-	});
+        res.json({
+            ok: true,
+            alumne,
+            message: "Dades eliminades"
+        });
+    });
 });
 
 
@@ -470,238 +470,6 @@ exports.suprD = function (req, res) {
 	});
 };
 
-//Assistència d'alumnes - GET
-exports.assisGet = function (req, res) {
-
-	var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth()+1; //January is 0!
-    var yyyy = today.getFullYear();
-
-    if(dd<10) {
-        dd='0'+dd
-    } 
-    if(mm<10) {
-        mm='0'+mm
-    } 
-    today = dd+'/'+mm+'/'+yyyy;
-
-	models.Alumne.find({
-		centre: req.session.user.centre,
-
-		curs: req.session.user.curs}
-		, null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-	.populate('centre tutor')
-	.exec(function(error, alumnes){
-		if (error){
-			console.log(error);
-		} else {
-			res.render('assistencia',{Alumnes: alumnes, DataV: today});
-			}
-	});
-
-};
-
-//Assistència d'alumnes - POST
-exports.assisPost = function (req, res) {
-	var alum = req.body;
-	var alumI = alum.i;
-
-	function queryAssist(index,callback){
-		if (index < alumI){
-			var alumneId = alum['alumneId.'+index];
-			var alumArray = alum['arraylng.'+index];
-			var alumDate = alum['assist.date.'+index];
-			var alumMati = alum['assist.mati.'+index];
-			var alumTarda = alum['assist.tarda.'+index];
-
-			var alumAssist = {};
-			alumAssist['date']= alumDate;
-			alumAssist['mati']= alumMati;
-			alumAssist['tarda'] = alumTarda;
-
-			if (!alumAssist['dataIso']){
-				//TO ISODATE
-				darr1 = alumDate.split("/");    // ["29", "1", "2016"]
-				var dataI = new Date(parseInt(darr1[2]),parseInt(darr1[1])-1,parseInt(darr1[0]));
-				                         // Date {Fri Jan 29 2016 00:00:00 GMT+0530(utopia standard time)
-				//var data1Iso = data1.toISOString();
-				//var data1IsoFull = 'ISODate("'+ data1Iso +'")';
-				                         //2016-01-28T18:30:00.000Z
-				alumAssist['dataIso'] = dataI;
-			}
-			//ELIMINA ASSIST amb mateixa data
-			models.Alumne.findByIdAndUpdate(alumneId, {$pull: {assist:{date: alumDate}, $push: {assist: alumAssist}}},{multi: true},
-				function (error, pullalumne){
-					if (error){
-						res.json(error);
-					} else {
-						console.log('DATA BORRADA '+alumneId+ ": " +alumDate);
-						//UPDATE ASSIST
-						models.Alumne.findByIdAndUpdate(alumneId, {$push: {assist: alumAssist}},{multi: true},
-							function (error, pushalumne){
-								if (error) res.json(error);
-								console.log('ALUMASSIST UPDATE '+alumneId+ ": " + JSON.stringify(alumAssist));
-						});
-					}
-				}
-			);
-			console.log('IF '+index);
-			queryAssist(index+1, callback);
-		} else {
-			callback();
-			console.log('ELSE');
-		}
-	}
-	queryAssist(0, function(){
-		console.log('PRE ASSISTENCIA');
-		setTimeout(function(){ res.redirect('/assistencia'); }, 3000);
-		
-		console.log('POST ASSISTENCIA');
-	})
-};
-
-
-//Assistència DATA
-exports.assisData = function (req, res) {
-
-	var dataA = req.body.dataAssis;
-
-	models.Alumne.find({
-		centre: req.session.user.centre,
-	
-		curs: req.session.user.curs}
-		, null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-	.populate('centre tutor')
-	.exec(function(error, alumnes){
-		if (error){
-			console.log(error);
-		} else {
-			res.render('assistencia',{Alumnes: alumnes, DataV: dataA});
-
-		}
-	});
-};
-
-
-//IMPRIMIR ASSISTÈNCIA ENTRE 2 DATES - GET
-exports.assisAlumne = function (req, res) {
-	var alumneId = req.params.id;
-	models.Alumne.findById(alumneId, function(error, alumne){
-		if (error) {
-			return res.json(error);
-		} else {
-			res.render('assistAlumne', {alumne: alumne});
-		}
-	});
-};				
-
-//Menjador - GET
-exports.menjaGet = function (req, res) {
-
-	var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth()+1; //January is 0!
-    var yyyy = today.getFullYear();
-
-    if(dd<10) {
-        dd='0'+dd
-    } 
-    if(mm<10) {
-        mm='0'+mm
-    } 
-    today = dd+'/'+mm+'/'+yyyy;
-
-	models.Alumne.find({
-		centre: req.session.user.centre,
-	
-		curs: req.session.user.curs}
-		, null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-	.populate('centre tutor')
-	.exec(function(error, alumnes){
-		if (error){
-			console.log(error);
-		} else {
-			res.render('menjador',{Alumnes: alumnes, DataVM: today});
-			}
-	});
-};
-//Menjador - POST
-exports.menjaPost = function (req, res) {
-
-	var alum = req.body;
-	var alumI = alum.i;
-
-	for (var i =0; i < alumI; i ++) {
-		var alumneId = alum['alumneId.'+i];
-		var alumArray = alum['arraylng.'+i];
-
-		var alumDateM = alum['menjador.dataMen.'+i];
-		var alumMenu = alum['menjador.menu.'+i];
-		
-
-		var alumMenjador = {};
-
-		alumMenjador['dataMen']= alumDateM;
-		alumMenjador['menu']= alumMenu;
-	
-		if (!alumMenjador['dataIsoMen']){
-
-			//TO ISODATE
-
-			darr1 = alumDateM.split("/");    // ["29", "1", "2016"]
-			var dataI = new Date(parseInt(darr1[2]),parseInt(darr1[1])-1,parseInt(darr1[0]));
-			alumMenjador['dataIsoMen'] = dataI;
-		}
-		//ELIMINA menjador amb mateixa data
-		models.Alumne.findByIdAndUpdate(alumneId, {$pull: {menjador:{dataMen: alumDateM}}},{multi: true},
-		function (error, alumne){
-		if (error) res.json(error);
-		});
-
-		//UPDATE menjador
-		models.Alumne.findByIdAndUpdate(alumneId, {$push: {menjador: alumMenjador}},
-		function (error, alumne){
-			if (error) res.json(error);
-		});
-	};
-		res.redirect('/menjador');
-};
-
-
-//Menjador DATA
-exports.menjaData = function (req, res) {
-
-	var dataM = req.body.dataMenja;
-
-	models.Alumne.find({
-		centre: req.session.user.centre,
-	
-		curs: req.session.user.curs}
-		, null, {sort: {cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1}})
-	.populate('centre tutor')
-	.exec(function(error, alumnes){
-		if (error){
-			console.log(error);
-		} else {
-			res.render('menjador',{Alumnes: alumnes, DataVM: dataM});
-
-		}
-	});
-};
-
-
-//Menjador - IMPRIMIR ASSISTÈNCIA ENTRE 2 DATES - GET
-exports.menjaAlumne = function (req, res) {
-	var alumneId = req.params.id;
-	models.Alumne.findById(alumneId, function(error, alumne){
-		if (error) {
-			return res.json(error);
-		} else {
-			res.render('assistAlumne', {alumne: alumne});
-		}
-	});
-};
 
 //REUNIONS PARES GET
 exports.reunioGet = function (req, res) {
@@ -717,52 +485,5 @@ exports.reunioGet = function (req, res) {
 	});
 };
 
-//REUNIONS POST
-exports.reunioPost = function (req, res) {
-	var alumneId = req.params.id;
-	var alum = req.body;
-	models.Alumne.findByIdAndUpdate(alumneId, alum, {new: true, safe: true, upsert: true},
-	function (error, alumne){
-		if (error) res.json(error);
-		res.json(alumne);
-	});
-
-}
-
-//REUNIONS UPDATE
-exports.reunioUpdate = function (req, res) {
-	var alumneId = req.params.id;
-	var alumneI = req.params.i;
-	var alum = req.body;
-
-	models.Alumne.findByIdAndUpdate(alumneId, alum, {multi: true, safe: true, upsert: true},
-
-	function (error, alumne){
-		if (error) {
-			res.json(error);
-		} else{
-			res.json(alumne);
-		}
-	});
-
-}
-
-//REUNIONS DELETE
-exports.reunioDel = function (req, res) {
-	var alumneId = req.params.id;
-	var alumneI = req.params.i;
-
-	models.Alumne.findOne({_id: alumneId}, function (error, alumne){
-		if (error) res.json(error);
-		alumne.reunionsPares.splice(alumneI,1);
-		alumne.save(function(error){
-			if (error) {res.json(error);
-		} else{
-			res.render('reunions_pares', {alumne: alumne, page_name:''});
-		};
-		});
-
-	});
-};
 
 */
