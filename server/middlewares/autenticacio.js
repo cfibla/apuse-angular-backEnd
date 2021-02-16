@@ -5,23 +5,23 @@ const jwt = require('jsonwebtoken');
 // ========================
 
 let auth = (req, res, next) => {
-	let token = req.get('token');
+    let token = req.get('token');
 
-	jwt.verify(token, process.env.SEED, (err, decoded) => {
-		if (err) {
-			return res.status(401).json({
-				ok: false,
-				err: {
-					message: "L'autenticació d'usuari no és valida"
-				}
-			})
-		}
+    jwt.verify(token, process.env.SEED, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({
+                ok: false,
+                err: {
+                    message: "L'autenticació d'usuari no és valida"
+                }
+            });
+        }
 
-		req.usuari = decoded.usuari;
+        req.usuari = decoded.usuari;
 
-		next();
-	})
-}
+        next();
+    });
+};
 
 // ========================
 // VERIFICA ADMIN
@@ -29,19 +29,19 @@ let auth = (req, res, next) => {
 
 let adminRole = (req, res, next) => {
 
-	let usuari = req.usuari;
+    let usuari = req.usuari;
 
-	if (usuari.role != 'ADMIN_ROLE') {
-		return res.status(401).json({
-				ok: false,
-				err: {
-					message: "No teniu els permisos necessaris per realitzar la tasca"
-				}
-			})
-	} else {
-		next();
-	}
-}
+    if (usuari.role != 'ADMIN_ROLE') {
+        return res.status(401).json({
+            ok: false,
+            err: {
+                message: "No teniu els permisos necessaris per realitzar la tasca"
+            }
+        });
+    } else {
+        next();
+    }
+};
 
 // ========================
 // VERIFICA SUPER
@@ -49,23 +49,23 @@ let adminRole = (req, res, next) => {
 
 let superRole = (req, res, next) => {
 
-	let usuari = req.usuari;
+    let usuari = req.usuari;
 
-	if (usuari.role != 'SUPER_ROLE') {
-		return res.status(401).json({
-				ok: false,
-				err: {
-					message: "No teniu els permisos necessaris per realitzar la tasca"
-				}
-			})
-	} else {
-		next();
-	}
-	
-}
+    if (usuari.role != 'SUPER_ROLE') {
+        return res.status(401).json({
+            ok: false,
+            err: {
+                message: "No teniu els permisos necessaris per realitzar la tasca"
+            }
+        });
+    } else {
+        next();
+    }
+
+};
 
 module.exports = {
-	auth,
-	adminRole,
-	superRole
-}
+    auth,
+    adminRole,
+    superRole
+};

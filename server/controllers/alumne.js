@@ -1,19 +1,31 @@
-const express = require('express');
-const app = express();
+const { response } = require('express');
+
 
 const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
 
 
 const Alumne = require('../models/alumne');
 const Usuari = require('../models/usuari');
-const Centre = require('../models/centre');
+// const Centre = require('../models/centre');
 
-// GET alumnes USER_ROLE
-app.get('/alumnes', auth, (req, res) => {
+// GET alumnes (cal implementar USER_ROLE, ADMIN_ROLE i SUPER_ROLE)
+// FALTA FER GET CENTRES I USUARIS
+const getAlumnes = async(req, res = response) => {
 
+    const alumnes = await Alumne.find()
+        .populate('tutor', 'nom cognom email')
+        .populate('centre', 'nom email');
+
+    res.json({
+        ok: true,
+        alumnes
+    });
+
+    /*
     Alumne
-        .find({ centre: req.usuari.centre, curs: req.usuari.curs }, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
-        .populate('centre', 'codi email')
+    // .find({ centre: req.usuari.centre, curs: req.usuari.curs }, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
+        .find()
+        // .populate('centre', 'codi email')
         .exec(function(err, alumnes) {
             if (err) {
                 return res.status(500).json({
@@ -31,7 +43,10 @@ app.get('/alumnes', auth, (req, res) => {
                 });
             });
         });
-});
+        */
+};
+
+/*
 
 // GET alumnes ADMIN_ROLE
 app.get('/alumnes-admin', [auth, adminRole], (req, res) => {
@@ -152,55 +167,86 @@ app.get('/alumne/recerca/:paraula', auth, (req, res) => {
 
 });
 
+*/
+
 // POST alumne
-app.post('/alumne', auth, (req, res) => {
+const crearAlumne = async(req, res) => {
 
-    const body = req.body;
+    const uid = req.uid;
+    const centreUsuari = await Usuari.findById(uid);
+    const centre = centreUsuari.centre;
 
-    if (!body.nom || !body.cognom1 || !body.curs) {
-        res.json('Falten camps obligatoris');
-    }
-
-    //MILLORAR ELS CHECKS
-    const repetidor = body['radios.0'];
-    const aill = body['checks.2'];
-    const servSoc = body['checks.29'];
-
-    let alumne = new Alumne({
-        nomAlumne: body.nom,
-        cognomAlumne1: body.cognom1,
-        cognomAlumne2: body.cognom2,
-        dataNaixement: body.naixement,
-        seguretatSoc: body.sSocial,
-        curs: body.curs,
-        eeUsee: body.eeUsee,
-        tutor: req.usuari._id,
-        centre: req.usuari.centre
+    const alumne = new Alumne({
+        centre: centre,
+        tutor: uid,
+        ...req.body
     });
 
-    alumne.save(function(err, alumneDB) {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                err: err.message
-            });
-        }
+    try {
 
-        if (!alumneDB) {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: "L'alumne no s'ha gravat"
-                }
-            });
-        }
+        const alumneDB = await alumne.save();
 
         res.json({
             ok: true,
+            msg: "S'ha desat l'alumne correctament",
             alumne: alumneDB
         });
-    });
 
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "No s'ha pogut desar l'alumne"
+        });
+    }
+
+    /*
+        const body = req.body;
+
+        if (!body.nom || !body.cognom1 || !body.curs) {
+            res.json('Falten camps obligatoris');
+        }
+
+        //MILLORAR ELS CHECKS
+        const repetidor = body['radios.0'];
+        const aill = body['checks.2'];
+        const servSoc = body['checks.29'];
+
+        let alumne = new Alumne({
+            nomAlumne: body.nom,
+            cognomAlumne1: body.cognom1,
+            cognomAlumne2: body.cognom2,
+            dataNaixement: body.naixement,
+            seguretatSoc: body.sSocial,
+            curs: body.curs,
+            eeUsee: body.eeUsee,
+            tutor: req.usuari._id,
+            centre: req.usuari.centre
+        });
+
+        alumne.save(function(err, alumneDB) {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err: err.message
+                });
+            }
+
+            if (!alumneDB) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: "L'alumne no s'ha gravat"
+                    }
+                });
+            }
+
+            res.json({
+                ok: true,
+                alumne: alumneDB
+            });
+        });
+    */
     /*
 //TODAY
 	let today = new Date();
@@ -221,10 +267,17 @@ app.post('/alumne', auth, (req, res) => {
 	};
 */
 
-});
+};
 
 // PUT alumne
-app.put('/alumne/:id', auth, (req, res) => {
+const editarAlumne = async(req, res) => {
+
+    res.json({
+        ok: true,
+        msg: 'editarAlumne'
+    });
+
+    /*
 
     let id = req.params.id;
     let body = req.body;
@@ -251,10 +304,18 @@ app.put('/alumne/:id', auth, (req, res) => {
             alumne: alumneDB
         });
     });
-});
+    */
+};
 
 // DELETE alumne
-app.delete('/alumne/:id', auth, (req, res) => {
+const eliminarAlumne = async(req, res) => {
+
+    res.json({
+        ok: true,
+        msg: 'eliminarAlumne'
+    });
+
+    /*
 
     let id = req.params.id;
     let estat = { estat: false };
@@ -283,11 +344,18 @@ app.delete('/alumne/:id', auth, (req, res) => {
             message: "Dades eliminades"
         });
     });
-});
+
+    */
+};
 
 
 
-module.exports = app;
+module.exports = {
+    getAlumnes,
+    crearAlumne,
+    editarAlumne,
+    eliminarAlumne
+};
 
 /*
 let models = require('../models/index');

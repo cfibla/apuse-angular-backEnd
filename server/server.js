@@ -24,6 +24,9 @@ app.use(express.json());
 
 // Routes
 app.use('/api/usuaris', require('./routes/usuaris'));
+app.use('/api/centres', require('./routes/centres'));
+app.use('/api/alumnes', require('./routes/alumnes'));
+app.use('/api/todo', require('./routes/cerques'));
 app.use('/login', require('./routes/auth'));
 
 mongoose

@@ -8,20 +8,35 @@ const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
 
 //const models = require('../models/index');
 const Usuari = require('../models/usuari');
-const Centre = require('../models/centre');
+// const Centre = require('../models/centre');
 const { generarJWT } = require('../helpers/jwt');
 
 // GET
 const getUsuaris = async(req, res) => {
 
-    const usuaris = await Usuari.find({}, 'nom cognom centre email role google estat');
-    const quants = await Usuari.countDocuments();
+    const desde = Number(req.query.desde) || 0;
+
+    // Quan hi hagi +1 busqueda base dades, millor així
+
+    const [usuaris, total] = await Promise.all([
+        Usuari
+        .find({}, 'nom cognom centre email role google estat')
+        .skip(desde)
+        .limit(10)
+        .populate('centre'),
+
+        Usuari.count()
+    ]);
+
+    // const usuaris = await Usuari.find({}, 'nom cognom centre email role google estat')
+    //     .populate('centre');
+    // const quants = await Usuari.countDocuments();
 
     res.json({
         ok: true,
         msg: 'Funció getUsuaris',
         usuaris,
-        quants
+        total
     });
 
 };
