@@ -46,8 +46,17 @@ const crearUsuari = async(req, res = response) => {
 
     const { email, password } = req.body;
 
+    const emailCorporatiu = email.match("@(.+)");
+
+    if (emailCorporatiu[0] !== '@xtec.cat') {
+        return res.status(400).json({
+            ok: false,
+            msg: "El correu ha de ser corporatiu"
+        });
+    }
+
     try {
-        // Falta comprovar el mail corporatiu
+
         // Falta comprovar que sinó és EE, el curs és obligatori
 
         const emailRepetit = await Usuari.findOne({ email });

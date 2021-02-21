@@ -36,16 +36,15 @@ router.post('/',
 router.put('/:id',
     // aqui van les validacions-> [auth, superRole],
     [
-        // validacioJWT,
-        // check('nom', 'El nom és obligatori').not().isEmpty(),
-        // check('cognom', 'El cognom és obligatori').not().isEmpty(),
-        // validacioCamps
+        validacioJWT,
+        check('nom', 'El nom és obligatori').not().isEmpty(),
+        check('cognom1', 'El cognom és obligatori').not().isEmpty(),
+        validacioCamps
     ],
     editarAlumne);
 
 router.delete('/:id',
-
-    // validacioJWT,
+    validacioJWT,
     // aqui van les validacions-> [auth, superRole],
     eliminarAlumne);
 

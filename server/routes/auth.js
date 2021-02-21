@@ -3,9 +3,10 @@
 */
 
 const { Router } = require('express');
-const { login } = require('../controllers/auth');
+const { login, renovaToken } = require('../controllers/auth');
 const { check } = require('express-validator');
 const { validacioCamps } = require('../middlewares/validacio-camps');
+const { validacioJWT } = require('../middlewares/validacio-jwt');
 
 const router = Router();
 
@@ -17,7 +18,8 @@ router.post('/', [ // aqui van les validacions-> [auth, superRole],
         validacioCamps
 
     ],
-
     login);
+
+router.get('/nouToken', validacioJWT, renovaToken);
 
 module.exports = router;

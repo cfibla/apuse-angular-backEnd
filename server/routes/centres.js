@@ -23,6 +23,7 @@ router.get('/',
 router.post('/',
     // aqui van les validacions-> [auth, superRole],
     [
+        validacioJWT,
         check('codi', 'El codi és obligatori').not().isEmpty(),
         check('nom', 'El nom és obligatori').not().isEmpty(),
         check('email', 'El correu electrònic és obligatori').isEmail(),
@@ -33,12 +34,15 @@ router.post('/',
 router.put('/:id',
     // aqui van les validacions-> [auth, superRole],
     [
-
+        validacioJWT,
     ],
     editarCentre);
 
 router.delete('/:id',
     // aqui van les validacions-> [auth, superRole],
+    [
+        validacioJWT,
+    ],
     eliminarCentre);
 
 module.exports = router;
