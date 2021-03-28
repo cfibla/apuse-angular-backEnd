@@ -20,6 +20,6 @@ router.post('/', [ // aqui van les validacions-> [auth, superRole],
     ],
     login);
 
-router.get('/nouToken', validacioJWT, renovaToken);
+router.get('/nou-token', validacioJWT, renovaToken);
 
 module.exports = router;

@@ -23,7 +23,7 @@ router.get('/',
 router.post('/',
     // aqui van les validacions-> [auth, superRole],
     [
-        validacioJWT,
+        // validacioJWT,
         check('codi', 'El codi és obligatori').not().isEmpty(),
         check('nom', 'El nom és obligatori').not().isEmpty(),
         check('email', 'El correu electrònic és obligatori').isEmail(),

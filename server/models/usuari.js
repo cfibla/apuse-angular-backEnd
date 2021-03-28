@@ -54,8 +54,18 @@ let usuariSchema = new Schema({
         type: Boolean,
         default: true
     },
-    mestre: String,
-    curs: String,
+    mestre: {
+        type: String,
+        required: true
+    },
+    nivell: {
+        type: String,
+        required: true
+    },
+    classe: {
+        type: String,
+        required: true
+    },
     lastLogin: String,
 
     //PROPIETARIS

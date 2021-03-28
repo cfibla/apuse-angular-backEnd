@@ -24,7 +24,8 @@ let centreSchema = new Schema({
     },
     municipi: {
         type: String,
-        trim: true
+        trim: true,
+        required: true
     },
     provincia: {
         type: String,
