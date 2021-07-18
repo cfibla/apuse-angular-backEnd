@@ -10,7 +10,8 @@ const login = async(req, res = response) => {
 
     try {
 
-        const usuariDB = await Usuari.findOne({ email });
+        const usuariDB = await Usuari.findOne({ email }).populate('centre');
+        console.log('BACKEND:', usuariDB);
 
         if (!usuariDB) {
             return res.status(404).json({
@@ -34,8 +35,10 @@ const login = async(req, res = response) => {
         res.json({
             ok: true,
             msg: 'Login correcte',
+            usuariDB,
             token
         });
+
     } catch (error) {
         res.status(500).json({
             ok: false,
@@ -49,13 +52,16 @@ const renovaToken = async(req, res = response) => {
     const uid = req.uid;
 
     const token = await generarJWT(uid);
+    const usuari = await Usuari.findById(uid).populate('centre');
+    console.log('RENOVA TOKEN:', usuari);
 
     res.json({
         ok: true,
-        token
-    })
+        token,
+        usuari
+    });
 
-}
+};
 
 module.exports = {
     login,

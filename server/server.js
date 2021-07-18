@@ -28,6 +28,8 @@ app.use('/api/centres', require('./routes/centres'));
 app.use('/api/alumnes', require('./routes/alumnes'));
 app.use('/api/todo', require('./routes/cerques'));
 app.use('/api/login', require('./routes/auth'));
+app.use('/api/uploads', require('./routes/uploads'));
+app.use('/api/canvi-centre', require('./routes/canvi-centre'));
 
 mongoose
     .set("useCreateIndex", true)

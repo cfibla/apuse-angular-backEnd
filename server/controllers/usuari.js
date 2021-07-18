@@ -10,6 +10,7 @@ const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
 const Usuari = require('../models/usuari');
 // const Centre = require('../models/centre');
 const { generarJWT } = require('../helpers/jwt');
+const { actualitzaCentre } = require('../helpers/actualitzar-centre');
 
 // GET
 const getUsuaris = async(req, res) => {
@@ -20,17 +21,13 @@ const getUsuaris = async(req, res) => {
 
     const [usuaris, total] = await Promise.all([
         Usuari
-        .find({}, 'nom cognom centre email role google estat')
+        .find({}, 'nom cognom centre email role google estat img')
         .skip(desde)
         .limit(10)
         .populate('centre'),
 
-        Usuari.count()
+        Usuari.countDocuments()
     ]);
-
-    // const usuaris = await Usuari.find({}, 'nom cognom centre email role google estat')
-    //     .populate('centre');
-    // const quants = await Usuari.countDocuments();
 
     res.json({
         ok: true,
@@ -212,40 +209,41 @@ const editarUsuari = async(req, res = response) => {
         });
 
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         res.status(500).json({
             ok: false,
             msg: "No s'ha pogut actualitzar l'usuari"
         });
     }
-    /*
-        let id = req.params.id;
-        //NOMÉS AGAFEM ELS CAMPS NECESSARIS DEL BODY
-        let body = _.pick(req.body, ['nom', 'cognom', 'img', 'mestre', 'curs', 'centre']);
-
-        Usuari.findByIdAndUpdate(id, body, { new: true, runValidators: true }, function(err, usuari) {
-
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    err: err.message
-                });
-            }
-
-            if (!usuari) {
-                return res.status(400).json({
-                    ok: false,
-                    err: { message: 'Aquest usuari no existeix' }
-                });
-            }
-
-            res.json({
-                ok: true,
-                usuari
-            });
-        });
-        */
 };
+
+/*
+    let id = req.params.id;
+    //NOMÉS AGAFEM ELS CAMPS NECESSARIS DEL BODY
+    let body = _.pick(req.body, ['nom', 'cognom', 'img', 'mestre', 'curs', 'centre']);
+
+    Usuari.findByIdAndUpdate(id, body, { new: true, runValidators: true }, function(err, usuari) {
+
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err: err.message
+            });
+        }
+
+        if (!usuari) {
+            return res.status(400).json({
+                ok: false,
+                err: { message: 'Aquest usuari no existeix' }
+            });
+        }
+
+        res.json({
+            ok: true,
+            usuari
+        });
+    });
+*/
 
 // DELETE
 eliminarUsuari = async(req, res) => {
@@ -370,5 +368,6 @@ module.exports = {
     getUsuaris,
     crearUsuari,
     editarUsuari,
+
     eliminarUsuari
 };

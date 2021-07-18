@@ -19,7 +19,7 @@ const crearCentre = async(req, res = response) => {
     const codiCentre = req.body.codi;
 
     const existeix = await Centre.findOne({ codi: codiCentre });
-    console.log(existeix);
+    // console.log(existeix);
 
     if (existeix) {
         return res.json({

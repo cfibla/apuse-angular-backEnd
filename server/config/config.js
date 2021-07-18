@@ -1,4 +1,5 @@
 const { TokenExpiredError } = require("jsonwebtoken");
+const cloudinary = require('cloudinary').v2;
 
 // ========
 //	PORT
@@ -25,8 +26,6 @@ if (process.env.SEED) {
 // ================
 process.env.CADUCITAT_TOKEN = '30d';
 
-
-
 // ============
 //	BASE DADES
 // ============
@@ -40,9 +39,20 @@ if (process.env.NODE_ENV === 'dev') {
 
 process.env.URLDB = urlDB;
 
-
 // ============
 //  JWT Token
 // ============
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'a2l0o2c1seppa';
+
+// ============
+//  Cloudinary
+// ============
+
+cloudinary.config({
+    cloud_name: 'appescola-img',
+    api_key: '214177955299594',
+    api_secret: 'JqzqnO_35f7f03sqiyV2mohz3mE'
+});
+
+cloudinary_URL = 'https://res.cloudinary.com/appescola-img/image/upload/v1617550969/';

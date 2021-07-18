@@ -33,6 +33,9 @@ let alumneSchema = new Schema({
         type: String,
         required: true
     },
+    img: {
+        type: String
+    },
     repetidor: {
         type: Boolean,
         default: false

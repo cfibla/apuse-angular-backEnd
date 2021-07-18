@@ -6,17 +6,38 @@ const Usuari = require('../models/usuari');
 // const Centre = require('../models/centre');
 
 // GET alumnes (cal implementar USER_ROLE, ADMIN_ROLE i SUPER_ROLE)
-// FALTA FER GET CENTRES I USUARIS
 const getAlumnes = async(req, res = response) => {
 
-    const alumnes = await Alumne.find()
+    const desde = Number(req.query.desde) || 0;
+
+    // Quan hi hagi +1 busqueda base dades, millor així
+
+    const [alumnes, total] = await Promise.all([
+        Alumne
+        .find({}, 'nom cognom1 cognom2 centre estat img')
+        .skip(desde)
+        .limit(20)
         .populate('tutor', 'nom cognom email')
-        .populate('centre', 'nom email');
+        .populate('centre', 'nom email'),
+
+        Alumne.countDocuments()
+    ]);
 
     res.json({
         ok: true,
-        alumnes
+        msg: 'Funció getUsuaris',
+        alumnes,
+        total
     });
+
+    // const alumnes = await Alumne.find()
+    //     .populate('tutor', 'nom cognom email')
+    //     .populate('centre', 'nom email');
+
+    // res.json({
+    //     ok: true,
+    //     alumnes
+    // });
 
     /*
     Alumne
