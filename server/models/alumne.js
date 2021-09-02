@@ -29,11 +29,18 @@ let alumneSchema = new Schema({
         type: String,
         uppercase: true
     },
-    curs: {
+    nivell: {
+        type: String,
+        required: true
+    },
+    classe: {
         type: String,
         required: true
     },
     img: {
+        type: String
+    },
+    adresa: {
         type: String
     },
     repetidor: {
@@ -41,9 +48,7 @@ let alumneSchema = new Schema({
         default: false
     },
     cursRepetit: String,
-    dataNaixement: {
-        type: Date
-    },
+    dataNaixement: String,
     seguretatSoc: {
         type: String,
         uppercase: true
@@ -51,7 +56,8 @@ let alumneSchema = new Schema({
     observacions: String,
     email: String,
     password: String,
-    telefon: String,
+    telefon1: String,
+    telefon2: String,
     atencioDiversitat: {
         type: Boolean,
         default: false
@@ -1082,6 +1088,12 @@ let alumneSchema = new Schema({
         }
     }
 
+});
+
+alumneSchema.method('toJSON', function() {
+    const { __v, _id, password, ...object } = this.toObject();
+    object.uid = _id;
+    return object;
 });
 
 module.exports = model('Alumne', alumneSchema);

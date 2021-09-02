@@ -52,6 +52,9 @@ let centreSchema = new Schema({
     },
     password: {
         type: String
+    },
+    img: {
+        type: String
     }
 
 });

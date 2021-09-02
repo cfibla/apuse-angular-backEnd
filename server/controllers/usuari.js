@@ -10,10 +10,11 @@ const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
 const Usuari = require('../models/usuari');
 // const Centre = require('../models/centre');
 const { generarJWT } = require('../helpers/jwt');
-const { actualitzaCentre } = require('../helpers/actualitzar-centre');
 
 // GET
 const getUsuaris = async(req, res) => {
+
+    // console.log('REQ del GET usuaris:', req);
 
     const desde = Number(req.query.desde) || 0;
 
@@ -21,7 +22,7 @@ const getUsuaris = async(req, res) => {
 
     const [usuaris, total] = await Promise.all([
         Usuari
-        .find({}, 'nom cognom centre email role google estat img')
+        .find({ 'estat': true }, 'nom cognom centre email mestre nivell classe role google estat img')
         .skip(desde)
         .limit(10)
         .populate('centre'),
@@ -251,6 +252,8 @@ eliminarUsuari = async(req, res) => {
     let id = req.params.id;
     let estat = { estat: false };
 
+    console.log('USUARI ELIMINAR:', id);
+
     try {
 
         const usuariEliminat = await Usuari.findByIdAndUpdate(id, estat, { new: true });
@@ -368,6 +371,5 @@ module.exports = {
     getUsuaris,
     crearUsuari,
     editarUsuari,
-
     eliminarUsuari
 };
