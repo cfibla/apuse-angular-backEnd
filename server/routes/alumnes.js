@@ -8,7 +8,7 @@ const { check } = require('express-validator');
 const { validacioCamps } = require('../middlewares/validacio-camps');
 const { validacioJWT } = require('../middlewares/validacio-jwt');
 
-const { getAlumnes, crearAlumne, editarAlumne, eliminarAlumne } = require('../controllers/alumne');
+const { getAlumnes, getUnAlumne, crearAlumne, editarAlumne, eliminarAlumne } = require('../controllers/alumne');
 
 const router = Router();
 
@@ -19,6 +19,13 @@ router.get('/',
         validacioJWT,
     ],
     getAlumnes);
+
+router.get('/:id',
+    // aqui van les validacions-> [auth, superRole],
+    [
+        validacioJWT,
+    ],
+    getUnAlumne);
 
 router.post('/',
     // aqui van les validacions-> [auth, superRole],

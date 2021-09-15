@@ -32,38 +32,36 @@ const getAlumnes = async(req, res = response) => {
         total
     });
 
-    // const alumnes = await Alumne.find()
-    //     .populate('tutor', 'nom cognom email')
-    //     .populate('centre', 'nom email');
+};
 
-    // res.json({
-    //     ok: true,
-    //     alumnes
-    // });
+const getUnAlumne = async(req, res = response) => {
 
-    /*
-    Alumne
-    // .find({ centre: req.usuari.centre, curs: req.usuari.curs }, null, { sort: { cognomAlumne1: 1, cognomAlumne2: 1, nomAlumne: 1 } })
-        .find()
-        // .populate('centre', 'codi email')
-        .exec(function(err, alumnes) {
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    err: err.message
-                });
-            }
+    const id = req.params.id;
 
-            //Comptar alumnes
-            Alumne.countDocuments({ centre: req.usuari.centre, curs: req.usuari.curs }, (err, quants) => {
-                res.json({
-                    ok: true,
-                    alumnes,
-                    quants
-                });
+    try {
+
+        const alumne = await Alumne.findById(id);
+
+        if (!alumne) {
+            return res.status(404).json({
+                ok: false,
+                msg: "No es troba l'alumne"
             });
+        }
+
+        res.json({
+            ok: true,
+            alumne
         });
-        */
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: "No ha estat possible trobar l'alumne"
+        });
+    }
+
 };
 
 /*
@@ -433,6 +431,7 @@ const eliminarAlumne = async(req, res) => {
 
 module.exports = {
     getAlumnes,
+    getUnAlumne,
     crearAlumne,
     editarAlumne,
     eliminarAlumne
