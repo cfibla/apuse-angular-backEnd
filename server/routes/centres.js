@@ -10,13 +10,15 @@ const { validacioCamps } = require('../middlewares/validacio-camps');
 const { getCentres, crearCentre, editarCentre, eliminarCentre } = require('../controllers/centre');
 
 const { validacioJWT } = require('../middlewares/validacio-jwt');
+const { validacioADMIN, validacioSUPER } = require('../middlewares/validacio-role');
 
 const router = Router();
 
 router.get('/',
     // aqui van les validacions-> [auth, superRole],
     [
-        validacioJWT
+        validacioJWT,
+        validacioSUPER
     ],
     getCentres);
 
@@ -35,6 +37,7 @@ router.put('/:id',
     // aqui van les validacions-> [auth, superRole],
     [
         validacioJWT,
+        validacioSUPER
     ],
     editarCentre);
 
@@ -42,6 +45,7 @@ router.delete('/:id',
     // aqui van les validacions-> [auth, superRole],
     [
         validacioJWT,
+        validacioSUPER
     ],
     eliminarCentre);
 

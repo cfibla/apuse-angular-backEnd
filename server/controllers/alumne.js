@@ -14,7 +14,7 @@ const getAlumnes = async(req, res = response) => {
 
     const [alumnes, total] = await Promise.all([
         Alumne
-        .find({ estat: true }, 'nom cognom1 cognom2 centre estat img nivell classe')
+        .find({ estat: true }, null, { sort: { cognom1: 1, cognom2: 1, nom: 1 } })
         .skip(desde)
         .limit(20)
         .populate('tutor', 'nom cognom email')
@@ -23,7 +23,7 @@ const getAlumnes = async(req, res = response) => {
         Alumne.countDocuments()
     ]);
 
-    console.log(alumnes);
+    // console.log(alumnes);
 
     res.json({
         ok: true,
@@ -308,8 +308,7 @@ const editarAlumne = async(req, res) => {
         };
 
         const alumneActualitzat = await Alumne.findByIdAndUpdate(id, canvisAlumne, { new: true });
-
-
+        console.log('Alumne actualitzat BACKEND', alumneActualitzat);
         res.json({
             ok: true,
             alumneActualitzat

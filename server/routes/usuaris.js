@@ -10,11 +10,12 @@ const { validacioCamps } = require('../middlewares/validacio-camps');
 const { getUsuaris, crearUsuari, editarUsuari, eliminarUsuari } = require('../controllers/usuari');
 const { auth, adminRole, superRole } = require('../middlewares/autenticacio');
 const { validacioJWT } = require('../middlewares/validacio-jwt');
+const { validacioADMIN, validacioPropia } = require('../middlewares/validacio-role');
 const { actualitzaCentre } = require('../helpers/actualitzar-centre');
 
 const router = Router();
 
-router.get('/', validacioJWT,
+router.get('/', validacioJWT, validacioADMIN,
     // aqui van les validacions-> [auth, superRole],
     getUsuaris);
 
@@ -27,12 +28,13 @@ router.post('/',
         check('email', 'El correu electrònic és obligatori').isEmail(),
         validacioCamps
     ],
-    crearUsuari);
+    crearUsuari
+);
 
 router.put('/:id',
     // aqui van les validacions-> [auth, superRole],
     [
-        validacioJWT,
+        validacioJWT, validacioPropia,
         check('nom', 'El nom és obligatori').not().isEmpty(),
         check('cognom', 'El cognom és obligatori').not().isEmpty(),
         check('role', 'El role és obligatori').not().isEmpty(),

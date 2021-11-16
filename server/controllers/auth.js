@@ -3,6 +3,7 @@ const brcrypt = require('bcryptjs');
 
 const Usuari = require('../models/usuari');
 const { generarJWT } = require('../helpers/jwt');
+const { getMenuFrontEnd } = require('../helpers/menu-frontend');
 
 const login = async(req, res = response) => {
 
@@ -36,7 +37,8 @@ const login = async(req, res = response) => {
             ok: true,
             msg: 'Login correcte',
             usuariDB,
-            token
+            token,
+            menu: getMenuFrontEnd(usuariDB.role)
         });
 
     } catch (error) {
@@ -53,12 +55,13 @@ const renovaToken = async(req, res = response) => {
 
     const token = await generarJWT(uid);
     const usuari = await Usuari.findById(uid).populate('centre');
-    console.log('RENOVA TOKEN:', usuari);
+    // console.log('RENOVA TOKEN:', usuari);
 
     res.json({
         ok: true,
         token,
-        usuari
+        usuari,
+        menu: getMenuFrontEnd(usuari.role)
     });
 
 };

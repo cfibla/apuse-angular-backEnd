@@ -66,6 +66,10 @@ let alumneSchema = new Schema({
         type: Boolean,
         default: false
     },
+    serveisExternsSeguiment: {
+        type: Boolean,
+        default: false
+    },
     aill: {
         type: Boolean,
         default: false
@@ -208,7 +212,7 @@ let alumneSchema = new Schema({
     seguimentAltresEspecialitats: {
         type: String
     },
-    AtencióServeisPrivats: {
+    atencioServeisPrivats: {
         type: String
     },
     estat: {
