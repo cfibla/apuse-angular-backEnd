@@ -16,7 +16,7 @@ const getMenuFrontEnd = (role = 'USER_ROLE') => {
 
     if (role === 'USER_ROLE') {
         menu.push({
-            titulo: 'Llistats',
+            titulo: 'Llistes',
             icono: 'mdi mdi-folder-lock',
             submenu: [
                 { titulo: 'Dades alumnes', url: 'user/alumnes' },

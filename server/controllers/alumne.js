@@ -8,13 +8,23 @@ const Usuari = require('../models/usuari');
 // GET alumnes (cal implementar USER_ROLE, ADMIN_ROLE i SUPER_ROLE)
 const getAlumnes = async(req, res = response) => {
 
+    const uid = req.uid;
+
+    const usuariDB = await Usuari.findById(uid);
+
+    // if (usuariDB.role === 'USER_ROLE' || usuariDB.role === 'ADMIN_ROLE') {
+    //     usuariDB.centre = false;
+    // }
+
+    console.log('USUARI alumne:', usuariDB);
+
     const desde = Number(req.query.desde) || 0;
 
     // Quan hi hagi +1 busqueda base dades, millor així
 
     const [alumnes, total] = await Promise.all([
         Alumne
-        .find({ estat: true }, null, { sort: { cognom1: 1, cognom2: 1, nom: 1 } })
+        .find({ estat: true, centre: usuariDB.centre }, null, { sort: { cognom1: 1, cognom2: 1, nom: 1 } })
         .skip(desde)
         .limit(20)
         .populate('tutor', 'nom cognom email')
